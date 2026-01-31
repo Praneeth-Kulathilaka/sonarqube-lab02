@@ -1,31 +1,75 @@
-package main.java.com.example;
+package com.example;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Objects;
 
 public class UserService {
 
-    // SECURITY ISSUE: Hardcoded credentials
-    private String password = "admin123";
+    private static final String JDBC_URL =
+            System.getProperty("db.url",
+                    System.getenv().getOrDefault("DB_URL", "jdbc:mysql://localhost/db"));
 
-    // VULNERABILITY: SQL Injection
-    public void findUser(String username) throws Exception {
+    private static final String JDBC_USER =
+            System.getProperty("db.user",
+                    System.getenv().getOrDefault("DB_USER", "root"));
 
-        Connection conn =
-            DriverManager.getConnection("jdbc:mysql://localhost/db",
-                    "root", password);
-
-        Statement st = conn.createStatement();
-
-        String query =
-            "SELECT * FROM users WHERE name = '" + username + "'";
-
-        st.executeQuery(query);
+    private static String dbPassword() throws UserServiceException {
+        String pwd = System.getProperty("db.password");
+        if (pwd == null || pwd.isBlank()) {
+            pwd = System.getenv("DB_PASSWORD");
+        }
+        if (pwd == null || pwd.isBlank()) {
+            throw new UserServiceException("Database password is not configured (set DB_PASSWORD or -Ddb.password)");
+        }
+        return pwd;
     }
 
-    // SMELL: Unused method
-    public void notUsed() {
-        System.out.println("I am never called");
+    private Connection openConnection() throws SQLException, UserServiceException {
+        return DriverManager.getConnection(JDBC_URL, JDBC_USER, dbPassword());
+    }
+
+    public void findUser(String username) throws UserServiceException {
+        Objects.requireNonNull(username, "username");
+
+        String sql = "SELECT 1 FROM users WHERE name = ?";
+
+        try (Connection conn = openConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    rs.getInt(1);
+                }
+            }
+
+        } catch (UserServiceException ex) {
+            throw ex;
+        } catch (SQLException ex) {
+            throw new UserServiceException("Failed to find user: " + username, ex);
+        }
+    }
+
+    public void deleteUser(String username) throws UserServiceException {
+        Objects.requireNonNull(username, "username");
+
+        String sql = "DELETE FROM users WHERE name = ?";
+
+        try (Connection conn = openConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+            ps.executeUpdate();
+
+        } catch (UserServiceException ex) {
+            throw ex;
+        } catch (SQLException ex) {
+            throw new UserServiceException("Failed to delete user: " + username, ex);
+        }
     }
 }
