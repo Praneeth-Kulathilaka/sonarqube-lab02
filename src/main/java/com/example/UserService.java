@@ -41,10 +41,7 @@ public class UserService {
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(query)) {
             
-            // Consume the ResultSet so the block isn't empty (demo/lab code).
-            while (rs.next()) {
-                rs.getObject(1);
-            }
+           // Intentionally left blank: this lab method only demonstrates DB access and resource handling.
 
         } catch (UserServiceException ex) {
             throw ex;
