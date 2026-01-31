@@ -1,4 +1,4 @@
-package main.java.com.example;
+package com.example;
 
 // Exceptions
 public class UserServiceException extends Exception {

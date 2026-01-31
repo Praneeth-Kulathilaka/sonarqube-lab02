@@ -1,35 +1,45 @@
-package main.java.com.example;
+package com.example;
 
 public class Calculator {
 
     // EVEN WORSE: longer, more complex, duplicated logic
     public int calculate(int a, int b, String op) {
-        if(op.equals("add")) {
-            return a + b;
-        } else if(op.equals("add-again")) {
-            return a + b; // DUPLICATION
-        } else if(op.equals("sub")) {
-            return a - b;
-        } else if(op.equals("sub-again")) {
-            return a - b; // DUPLICATION
-        } else if(op.equals("mul")) {
-            return a * b;
-        } else if(op.equals("div")) {
-            if(b == 0) {
-            return 0;
-            } else {
-                return a / b;
+        switch (op) {
+            case "add" -> {
+                return a + b;
             }
-        } else if(op.equals("mod")) {
-            return a % b;
-        } else if(op.equals("pow")) {
-            int result = 1;
-            for(int i = 0; i < b; i++) {
-            result = result * a;
+            case "add-again" -> {
+                return a + b; // DUPLICATION
             }
-            return result;
-        } else {
-            return 0;
+            case "sub" -> {
+                return a - b;
+            }
+            case "sub-again" -> {
+                return a - b; // DUPLICATION
+            }
+            case "mul" -> {
+                return a * b;
+            }
+            case "div" -> {
+                if(b == 0) {
+                    return 0;
+                } else {
+                    return a / b;
+                }
+            }
+            case "mod" -> {
+                return a % b;
+            }
+            case "pow" -> {
+                int result = 1;
+                for(int i = 0; i < b; i++) {
+                    result = result * a;
+                }
+                return result;
+            }
+            default -> {
+                return 0;
+            }
         }
     }
 

@@ -1,10 +1,10 @@
-package main.java.com.example;
+package com.example;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Objects;
 
 public class UserService {
@@ -35,13 +35,18 @@ public class UserService {
     public void findUser(String username) throws UserServiceException {
         Objects.requireNonNull(username, "username");
 
-        String query = "SELECT * FROM users WHERE name = '" + username + "'";
+        String sql = "SELECT * FROM users WHERE name = ?";
 
         try (Connection conn = openConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(query)) {
-            
-           // Intentionally left blank: this lab method only demonstrates DB access and resource handling.
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    rs.getObject(1);
+                }
+            }
 
         } catch (UserServiceException ex) {
             throw ex;
@@ -53,12 +58,13 @@ public class UserService {
     public void deleteUser(String username) throws UserServiceException {
         Objects.requireNonNull(username, "username");
 
-        String query = "DELETE FROM users WHERE name = '" + username + "'";
+        String sql = "DELETE FROM users WHERE name = ?";
 
         try (Connection conn = openConnection();
-             Statement st = conn.createStatement()) {
+            PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            st.executeUpdate(query);
+            ps.setString(1, username);
+            ps.executeUpdate();
 
         } catch (UserServiceException ex) {
             throw ex;
