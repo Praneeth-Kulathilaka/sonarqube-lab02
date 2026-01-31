@@ -40,6 +40,11 @@ public class UserService {
         try (Connection conn = openConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(query)) {
+            
+            // Consume the ResultSet so the block isn't empty (demo/lab code).
+            while (rs.next()) {
+                rs.getObject(1);
+            }
 
         } catch (UserServiceException ex) {
             throw ex;
