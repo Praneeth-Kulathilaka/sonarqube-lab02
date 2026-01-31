@@ -35,7 +35,7 @@ public class UserService {
     public void findUser(String username) throws UserServiceException {
         Objects.requireNonNull(username, "username");
 
-        String sql = "SELECT * FROM users WHERE name = ?";
+        String sql = "SELECT 1 FROM users WHERE name = ?";
 
         try (Connection conn = openConnection();
             PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -44,7 +44,7 @@ public class UserService {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    rs.getObject(1);
+                    rs.getInt(1);
                 }
             }
 
