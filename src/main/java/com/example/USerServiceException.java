@@ -1,5 +1,6 @@
 package main.java.com.example;
 
+// Exceptions
 public class UserServiceException extends Exception {
     public UserServiceException(String message) {
         super(message);
