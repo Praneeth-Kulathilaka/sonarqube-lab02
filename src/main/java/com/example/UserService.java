@@ -12,7 +12,7 @@ public class UserService {
     private static final String JDBC_URL = "jdbc:mysql://localhost/db";
     private static final String JDBC_USER = "root";
 
-    // SECURITY ISSUE (left as-is for the lab): Hardcoded credentials
+    // SECURITY ISSUE (left as-is for the lab): Hardcoded credential
     private final String password = "admin123";
 
     private Connection openConnection() throws SQLException {
