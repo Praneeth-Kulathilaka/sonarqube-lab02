@@ -9,14 +9,27 @@ import java.util.Objects;
 
 public class UserService {
 
-    private static final String JDBC_URL = "jdbc:mysql://localhost/db";
-    private static final String JDBC_USER = "root";
+    private static final String JDBC_URL =
+            System.getProperty("db.url",
+                    System.getenv().getOrDefault("DB_URL", "jdbc:mysql://localhost/db"));
 
-    // SECURITY ISSUE (left as-is for the lab): Hardcoded credential
-    private final String password = "admin123";
+    private static final String JDBC_USER =
+            System.getProperty("db.user",
+                    System.getenv().getOrDefault("DB_USER", "root"));
 
-    private Connection openConnection() throws SQLException {
-        return DriverManager.getConnection(JDBC_URL, JDBC_USER, password);
+    private static String dbPassword() throws UserServiceException {
+        String pwd = System.getProperty("db.password");
+        if (pwd == null || pwd.isBlank()) {
+            pwd = System.getenv("DB_PASSWORD");
+        }
+        if (pwd == null || pwd.isBlank()) {
+            throw new UserServiceException("Database password is not configured (set DB_PASSWORD or -Ddb.password)");
+        }
+        return pwd;
+    }
+
+    private Connection openConnection() throws SQLException, UserServiceException {
+        return DriverManager.getConnection(JDBC_URL, JDBC_USER, dbPassword());
     }
 
     public void findUser(String username) throws UserServiceException {
@@ -28,16 +41,11 @@ public class UserService {
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(query)) {
 
-            // Intentionally ignoring results for this lab project.
-
+        } catch (UserServiceException ex) {
+            throw ex;
         } catch (SQLException ex) {
             throw new UserServiceException("Failed to find user: " + username, ex);
         }
-    }
-
-    // SMELL: Unused method (left as-is for the lab)
-    public void notUsed() {
-        System.out.println("I am never called");
     }
 
     public void deleteUser(String username) throws UserServiceException {
@@ -50,6 +58,8 @@ public class UserService {
 
             st.executeUpdate(query);
 
+        } catch (UserServiceException ex) {
+            throw ex;
         } catch (SQLException ex) {
             throw new UserServiceException("Failed to delete user: " + username, ex);
         }
